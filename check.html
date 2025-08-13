@@ -1,196 +1,168 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Circle Line Weekend Service Checker</title>
-  <style>
-    :root { --bg:#f6f7f9; --card:#ffffff; --ink:#111827; --muted:#6b7280; --ok:#065f46; --okbg:#ecfdf5; --warn:#92400e; --warnbg:#fffbeb; --br:#e5e7eb; --brand:#2563eb; }
-    * { box-sizing: border-box; }
-    body { margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji"; background:var(--bg); color:var(--ink); }
-    header { position:sticky; top:0; background:rgba(255,255,255,.85); backdrop-filter: blur(8px); border-bottom:1px solid var(--br); }
-    .wrap { max-width: 1000px; margin: 0 auto; padding: 16px; }
-    h1 { font-size: clamp(20px, 3vw, 28px); margin: 0; }
-    .sub { color: var(--muted); font-size: 12px; }
-    .grid { display: grid; gap: 16px; }
-    @media (min-width: 840px){ .grid-2 { grid-template-columns: 1fr 1fr; } }
-    .card { background: var(--card); border:1px solid var(--br); border-radius: 16px; padding: 16px; box-shadow: 0 4px 10px rgba(0,0,0,.03); }
-    label { font-size: 14px; font-weight: 600; display:block; margin-bottom: 6px; }
-    input[type="datetime-local"] { width: 100%; padding: 10px 12px; border:1px solid var(--br); border-radius: 10px; font: inherit; }
-    .help { font-size: 12px; color: var(--muted); margin-top: 6px; }
-    .pill { display:inline-block; padding: 4px 8px; border-radius: 999px; font-size:12px; border:1px solid var(--br); color:var(--muted); }
-    .status { border-radius: 12px; padding: 12px; border:1px solid var(--br); }
-    .ok { background: var(--okbg); border-color:#a7f3d0; }
-    .ok h3 { color: var(--ok); margin:0 0 4px 0; font-size: 18px; }
-    .warn { background: var(--warnbg); border-color:#fcd34d; }
-    .warn h3 { color: var(--warn); margin:0 0 4px 0; font-size: 18px; }
-    table { width:100%; border-collapse: collapse; font-size: 14px; }
-    th, td { padding: 10px 12px; border-bottom:1px solid var(--br); text-align:left; }
-    thead th { background:#f3f4f6; }
-    .week { border:1px solid var(--br); border-radius: 12px; padding: 10px 12px; display:flex; justify-content: space-between; align-items:center; }
-    .w-ok { background: var(--okbg); border-color:#a7f3d0; }
-    .w-warn { background: var(--warnbg); border-color:#fcd34d; }
-    footer { color: var(--muted); font-size: 12px; padding: 16px 0; }
-    .badge { background:#eff6ff; color:#1d4ed8; border:1px solid #bfdbfe; border-radius: 8px; padding:8px; font-size: 12px; }
-    .small { font-size:12px; color:var(--muted); }
-  </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Circle Line Weekend Service Checker (SG) – Sep to Dec 2025</title>
+<meta name="description" content="Single‑file website to check if Circle Line weekend service adjustments apply for a selected date. Singapore, Sep–Dec 2025." />
+<style>
+  :root{--bg:#f7f7f8;--card:#ffffff;--ink:#0f172a;--sub:#46506b;--ok:#0f766e;--warn:#b45309;--okbg:#e7f5f2;--warnbg:#fff7e6;--bd:#e5e7eb;--muted:#6b7280;}
+  html,body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,Helvetica Neue,Arial;color:var(--ink);background:var(--bg);}  
+  .wrap{max-width:1000px;margin:0 auto;padding:20px;}
+  header{position:sticky;top:0;backdrop-filter:blur(8px);background:rgba(255,255,255,.8);border-bottom:1px solid var(--bd);} 
+  h1{font-size:clamp(20px,3vw,28px);margin:8px 0;}
+  .subtitle{color:var(--sub);font-size:14px;}
+  .grid{display:grid;gap:16px;grid-template-columns:1fr;}
+  @media(min-width:900px){.grid{grid-template-columns:1fr 1fr;}}
+  .card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:18px;display:flex;flex-direction:column;} 
+  label{display:block;font-weight:600;margin:0 0 6px;font-size:14px;}
+  .input-wrapper{width:100%;max-width:300px;}
+  input[type="date"]{width:100%;padding:10px 12px;border:1px solid var(--bd);border-radius:10px;font-size:14px;box-sizing:border-box;}
+  .hint{color:var(--muted);font-size:12px;margin-top:6px;}
+  .result{border-radius:12px;padding:12px;border:1px solid var(--bd);} 
+  .ok{background:var(--okbg);border-color:#a7f3d0;} .warn{background:var(--warnbg);border-color:#fde68a;}
+  .result h3{margin:0 0 4px;font-size:18px;}
+  .mute{color:var(--muted);}  
+  .pill{display:inline-block;padding:2px 8px;border-radius:999px;font-size:12px;border:1px solid var(--bd);} 
+  .pill.ok{background:var(--okbg);border-color:#a7f3d0;} .pill.warn{background:var(--warnbg);border-color:#fde68a;}
+  .bus{border:1px dashed #93c5fd;background:#eff6ff;padding:10px;border-radius:10px;}
+  footer{color:var(--muted);font-size:12px;padding:12px 0 24px;text-align:center;}
+  /* Month grouping */
+  .month{margin-bottom:18px;}
+  .month h3{margin:8px 0 10px;font-size:16px;color:var(--sub);} 
+  .month-grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));}
+</style>
 </head>
 <body>
-  <header>
-    <div class="wrap" style="display:flex; justify-content:space-between; align-items:center; gap:12px;">
-      <h1>Circle Line Weekend Service Checker</h1>
-      <span class="sub">SGT • Sep to Dec 2025</span>
+<header>
+  <div class="wrap">
+    <h1>Singapore Circle Line (CCL) Service Checker</h1>
+    <div class="subtitle">Singapore • 5 Sep 2025 to 28 Dec 2025 • Exceptions apply</div>
+  </div>
+</header>
+<main class="wrap">
+  <section class="grid">
+    <div class="card">
+      <label for="dt">Select date</label>
+      <div class="input-wrapper">
+        <input id="dt" type="date" />
+      </div>
+      <div class="hint">Local timezone is used.</div>
     </div>
-  </header>
-
-  <main class="wrap">
-    <section class="card grid grid-2">
-      <div>
-        <label for="dt">Select date and time</label>
-        <input id="dt" type="datetime-local" />
-        <div class="help">Local timezone is used. Period: 5 Sep 2025 to 28 Dec 2025.</div>
-      </div>
-      <div id="status" class="status ok">
+    <div class="card">
+      <div id="result" class="result ok">
         <h3>Normal operating hours</h3>
-        <div class="small" id="reason">Outside adjustment period</div>
+        <div class="mute" id="why">Select a date to check</div>
+        <div class="hint" id="serviceTime"></div>
       </div>
-    </section>
-
-    <section class="card">
-      <h2 style="margin:0 0 10px 0; font-size: 20px;">Quick reference</h2>
-      <div style="overflow-x:auto;">
-        <table>
-          <thead>
-            <tr>
-              <th>When</th>
-              <th>Change</th>
-              <th>Notes</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Fridays and Saturdays</td>
-              <td>Early end at 23:00</td>
-              <td>Plan earlier last train connections</td>
-            </tr>
-            <tr>
-              <td>Saturdays and Sundays</td>
-              <td>Late start until 09:00</td>
-              <td>
-                <div class="badge">Shuttles 05:00 to 09:00</div>
-                <div class="small">Shuttle 36: HarbourFront ↔ Bishan, every 7 to 10 minutes<br/>Shuttle 37: Bishan ↔ Promenade, every 3 to 5 minutes</div>
-              </td>
-            </tr>
-            <tr>
-              <td>Exceptions</td>
-              <td>3–5 Oct, 28–30 Nov, 5–7 Dec</td>
-              <td>Normal hours on these weekends</td>
-            </tr>
-          </tbody>
-        </table>
+      <div id="busBox" class="bus" style="display:none;margin-top:10px">
+        <strong>Shuttle buses 05:00 to 09:00</strong>
+        <ul style="margin:6px 0 0 20px;">
+          <li>Shuttle 36: HarbourFront ↔ Bishan, 7 to 10 minutes</li>
+          <li>Shuttle 37: Bishan ↔ Promenade, 3 to 5 minutes</li>
+        </ul>
+        <div class="hint">Plan up to 30 minutes additional travel time.</div>
       </div>
-    </section>
-
-    <section class="card">
-      <h2 style="margin:0 0 10px 0; font-size: 20px;">All weekends in period</h2>
-      <div id="weeks" class="grid"></div>
-      <div class="small" style="margin-top:10px;">Data source: public announcements. Please confirm before travel. Last updated 13 Aug 2025.</div>
-    </section>
-
-    <footer>
-      Built for Singapore commuters. No tracking.
-    </footer>
-  </main>
-
-  <script>
-    // Configuration
-    const PERIOD_START = new Date("2025-09-05T00:00:00+08:00");
-    const PERIOD_END   = new Date("2025-12-28T23:59:59+08:00");
-    const EXCEPTIONS = [
-      [new Date("2025-10-03T00:00:00+08:00"), new Date("2025-10-05T23:59:59+08:00")],
-      [new Date("2025-11-28T00:00:00+08:00"), new Date("2025-11-30T23:59:59+08:00")],
-      [new Date("2025-12-05T00:00:00+08:00"), new Date("2025-12-07T23:59:59+08:00")],
-    ];
-
-    const dtInput = document.getElementById('dt');
-    const statusEl = document.getElementById('status');
-    const reasonEl = document.getElementById('reason');
-    const weeksEl = document.getElementById('weeks');
-
-    // Set default to current local datetime (rounded to minutes)
-    (function initInputNow(){
-      const now = new Date();
-      const iso = new Date(now - now.getTimezoneOffset()*60000).toISOString().slice(0,16); // local iso without seconds
-      dtInput.value = iso;
-    })();
-
-    function within(d, s, e){ return d.getTime() >= s.getTime() && d.getTime() <= e.getTime(); }
-    function inAny(d, ranges){ return ranges.some(([s,e]) => within(d,s,e)); }
-
-    function assess(date){
-      if (!within(date, PERIOD_START, PERIOD_END)) return { affected:false, reason:"Outside adjustment period" };
-      if (inAny(date, EXCEPTIONS)) return { affected:false, reason:"Exception weekend" };
-
-      const dow = date.getDay(); // 0 Sun..6 Sat
-      const h = date.getHours();
-
-      // Early end: Fri, Sat from 23:00
-      if ((dow === 5 || dow === 6) && h >= 23) return { affected:true, mode:"night", detail:"Early end from 23:00 on Fri and Sat" };
-      // Late start: Sat, Sun until 09:00
-      if ((dow === 6 || dow === 0) && h < 9) return { affected:true, mode:"morning", detail:"Late start until 09:00 on Sat and Sun" };
-
-      return { affected:false, reason:"Normal hours" };
+    </div>
+  </section>
+  <section class="card" style="margin-top:16px">
+    <h2 style="margin:0 0 10px;font-size:20px">All weekends in period</h2>
+    <div class="hint" style="margin-bottom:8px">Grouped by month for clarity</div>
+    <div id="months"></div>
+  </section>
+  <footer>Built for Singapore commuters. No tracking. Last updated 13 Aug 2025. <br>Created by Chua Kai En</footer>
+</main>
+<script>
+(function(){
+  const start = new Date('2025-09-05');
+  const end   = new Date('2025-12-28');
+  const exceptions = [
+    [new Date('2025-10-03'), new Date('2025-10-05')],
+    [new Date('2025-11-28'), new Date('2025-11-30')],
+    [new Date('2025-12-05'), new Date('2025-12-07')]
+  ];
+  function within(d,s,e){return d>=s && d<=e;}
+  function inAny(d,ranges){return ranges.some(([s,e])=>within(d,s,e));}
+  function affectedInfo(d){
+    if(!within(d,start,end)) return {affected:false,reason:'Outside adjustment period',startTime:'05:30',endTime:'23:55'};
+    if(inAny(d,exceptions)) return {affected:false,reason:'Exception weekend',startTime:'05:30',endTime:'23:55'};
+    const dow = d.getDay();
+    if(dow===5) return {affected:true,mode:'night',window:'Early end from 23:00 on Friday',startTime:'05:30',endTime:'23:00'};
+    if(dow===6) return {affected:true,mode:'both',window:'Late start until 09:00 and early end at 23:00 on Saturday',startTime:'09:00',endTime:'23:00'};
+    if(dow===0) return {affected:true,mode:'morning',window:'Late start until 09:00 on Sunday',startTime:'09:00',endTime:'23:55'};
+    return {affected:false,reason:'Normal hours',startTime:'05:30',endTime:'23:55'};
+  }
+  const dtEl=document.getElementById('dt');
+  const res=document.getElementById('result');
+  const why=document.getElementById('why');
+  const bus=document.getElementById('busBox');
+  const serviceTime=document.getElementById('serviceTime');
+  const monthsBox=document.getElementById('months');
+  function check(){
+    const raw=dtEl.value;
+    if(!raw){res.className='result ok';res.querySelector('h3').textContent='Normal operating hours';why.textContent='Select a date to check';serviceTime.textContent='';bus.style.display='none';return;}
+    const d=new Date(raw);
+    const st=affectedInfo(d);
+    if(st.affected){
+      res.className='result warn';
+      res.querySelector('h3').textContent='Adjusted service applies';
+      why.textContent=st.window;
+      serviceTime.textContent=`Start service: ${st.startTime} • End service: ${st.endTime}`;
+      bus.style.display=st.mode==='morning'||st.mode==='both'?'block':'none';
+    }else{
+      res.className='result ok';
+      res.querySelector('h3').textContent='Normal operating hours';
+      why.textContent=st.reason;
+      serviceTime.textContent=`Start service: ${st.startTime} • End service: ${st.endTime}`;
+      bus.style.display='none';
     }
-
-    function renderStatus(date){
-      if (isNaN(date)) { statusEl.className = 'status ok'; statusEl.innerHTML = '<h3>Normal operating hours</h3><div class="small">Invalid date time</div>'; return; }
-      const s = assess(date);
-      if (s.affected){
-        statusEl.className = 'status warn';
-        statusEl.innerHTML = '<h3>Adjusted service applies</h3>' +
-          '<div class="small">' + s.detail + '</div>' +
-          (s.mode === 'morning' ? (
-            '<div class="badge" style="margin-top:8px; display:block;">Shuttle buses 05:00 to 09:00</div>' +
-            '<div class="small">Shuttle 36: HarbourFront ↔ Bishan, every 7 to 10 minutes<br/>Shuttle 37: Bishan ↔ Promenade, every 3 to 5 minutes<br/>Plan for up to 30 minutes additional travel time.</div>'
-          ) : '');
-      } else {
-        statusEl.className = 'status ok';
-        statusEl.innerHTML = '<h3>Normal operating hours</h3><div class="small">' + s.reason + '</div>';
-      }
+  }
+  function buildWeekends(){
+    monthsBox.innerHTML='';
+    const monthNames=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    // Collect weekends by month key 'YYYY-MM'
+    const buckets=new Map();
+    const d=new Date(start);
+    while(d.getDay()!==5) d.setDate(d.getDate()+1); // first Friday
+    while(d<=end){
+      const fri=new Date(d);const sat=new Date(d);sat.setDate(sat.getDate()+1);const sun=new Date(d);sun.setDate(sun.getDate()+2);
+      const key=`${fri.getFullYear()}-${String(fri.getMonth()+1).padStart(2,'0')}`;
+      const isEx=inAny(fri,exceptions)||inAny(sat,exceptions)||inAny(sun,exceptions);
+      const item={fri,sun,isEx};
+      if(!buckets.has(key)) buckets.set(key,[]);
+      buckets.get(key).push(item);
+      d.setDate(d.getDate()+7);
     }
-
-    function listWeekends(){
-      weeksEl.innerHTML = '';
-      const d = new Date(PERIOD_START);
-      // move to first Friday in range
-      while (d.getDay() !== 5) d.setDate(d.getDate() + 1);
-      while (d <= PERIOD_END){
-        const fri = new Date(d);
-        const sat = new Date(d); sat.setDate(sat.getDate()+1);
-        const sun = new Date(d); sun.setDate(sun.getDate()+2);
-        const isException = inAny(fri, EXCEPTIONS) || inAny(sat, EXCEPTIONS) || inAny(sun, EXCEPTIONS);
-        const cls = isException ? 'w-ok' : 'w-warn';
-        const tag = isException ? 'Normal hours (exception)' : 'Adjusted service applies';
-        const box = document.createElement('div');
-        box.className = `week ${cls}`;
-        box.innerHTML = `<div><strong>${isoDate(fri)} to ${isoDate(sun)}</strong><div class="small">${tag}</div></div><div class="small">${isException ? 'Normal' : 'Adjusted'}</div>`;
-        weeksEl.appendChild(box);
-        d.setDate(d.getDate()+7);
-      }
-    }
-
-    function isoDate(d){ return d.toISOString().slice(0,10); }
-
-    // Events
-    dtInput.addEventListener('input', () => {
-      const val = dtInput.value;
-      const date = val ? new Date(val) : new Date(NaN);
-      renderStatus(date);
+    // Render months in chronological order
+    Array.from(buckets.keys()).sort().forEach(key=>{
+      const [y,m]=key.split('-').map(Number);
+      const monthWrap=document.createElement('div');
+      monthWrap.className='month';
+      const title=document.createElement('h3');
+      title.textContent=`${monthNames[m-1]} ${y}`;
+      monthWrap.appendChild(title);
+      const grid=document.createElement('div');
+      grid.className='month-grid';
+      buckets.get(key).forEach(({fri,sun,isEx})=>{
+        const card=document.createElement('div');
+        card.className='card';
+        const tag=`<span class="pill ${isEx?'ok':'warn'}">${isEx?'Normal':'Adjusted'}</span>`;
+        card.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+          <div>
+            <div style="font-weight:600">${fri.toISOString().slice(0,10)} to ${sun.toISOString().slice(0,10)}</div>
+            <div class="hint">${isEx?'Normal hours (exception)':'Adjusted service applies'}</div>
+          </div>
+          ${tag}
+        </div>`;
+        grid.appendChild(card);
+      });
+      monthWrap.appendChild(grid);
+      monthsBox.appendChild(monthWrap);
     });
-
-    // Initial render
-    renderStatus(new Date(dtInput.value));
-    listWeekends();
-  </script>
+  }
+  dtEl.addEventListener('change',check);
+  buildWeekends();
+})();
+</script>
 </body>
 </html>
