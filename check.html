@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Circle Line Weekend Service Checker</title>
+  <style>
+    :root { --bg:#f6f7f9; --card:#ffffff; --ink:#111827; --muted:#6b7280; --ok:#065f46; --okbg:#ecfdf5; --warn:#92400e; --warnbg:#fffbeb; --br:#e5e7eb; --brand:#2563eb; }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji"; background:var(--bg); color:var(--ink); }
+    header { position:sticky; top:0; background:rgba(255,255,255,.85); backdrop-filter: blur(8px); border-bottom:1px solid var(--br); }
+    .wrap { max-width: 1000px; margin: 0 auto; padding: 16px; }
+    h1 { font-size: clamp(20px, 3vw, 28px); margin: 0; }
+    .sub { color: var(--muted); font-size: 12px; }
+    .grid { display: grid; gap: 16px; }
+    @media (min-width: 840px){ .grid-2 { grid-template-columns: 1fr 1fr; } }
+    .card { background: var(--card); border:1px solid var(--br); border-radius: 16px; padding: 16px; box-shadow: 0 4px 10px rgba(0,0,0,.03); }
+    label { font-size: 14px; font-weight: 600; display:block; margin-bottom: 6px; }
+    input[type="datetime-local"] { width: 100%; padding: 10px 12px; border:1px solid var(--br); border-radius: 10px; font: inherit; }
+    .help { font-size: 12px; color: var(--muted); margin-top: 6px; }
+    .pill { display:inline-block; padding: 4px 8px; border-radius: 999px; font-size:12px; border:1px solid var(--br); color:var(--muted); }
+    .status { border-radius: 12px; padding: 12px; border:1px solid var(--br); }
+    .ok { background: var(--okbg); border-color:#a7f3d0; }
+    .ok h3 { color: var(--ok); margin:0 0 4px 0; font-size: 18px; }
+    .warn { background: var(--warnbg); border-color:#fcd34d; }
+    .warn h3 { color: var(--warn); margin:0 0 4px 0; font-size: 18px; }
+    table { width:100%; border-collapse: collapse; font-size: 14px; }
+    th, td { padding: 10px 12px; border-bottom:1px solid var(--br); text-align:left; }
+    thead th { background:#f3f4f6; }
+    .week { border:1px solid var(--br); border-radius: 12px; padding: 10px 12px; display:flex; justify-content: space-between; align-items:center; }
+    .w-ok { background: var(--okbg); border-color:#a7f3d0; }
+    .w-warn { background: var(--warnbg); border-color:#fcd34d; }
+    footer { color: var(--muted); font-size: 12px; padding: 16px 0; }
+    .badge { background:#eff6ff; color:#1d4ed8; border:1px solid #bfdbfe; border-radius: 8px; padding:8px; font-size: 12px; }
+    .small { font-size:12px; color:var(--muted); }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap" style="display:flex; justify-content:space-between; align-items:center; gap:12px;">
+      <h1>Circle Line Weekend Service Checker</h1>
+      <span class="sub">SGT • Sep to Dec 2025</span>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="card grid grid-2">
+      <div>
+        <label for="dt">Select date and time</label>
+        <input id="dt" type="datetime-local" />
+        <div class="help">Local timezone is used. Period: 5 Sep 2025 to 28 Dec 2025.</div>
+      </div>
+      <div id="status" class="status ok">
+        <h3>Normal operating hours</h3>
+        <div class="small" id="reason">Outside adjustment period</div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2 style="margin:0 0 10px 0; font-size: 20px;">Quick reference</h2>
+      <div style="overflow-x:auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>When</th>
+              <th>Change</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Fridays and Saturdays</td>
+              <td>Early end at 23:00</td>
+              <td>Plan earlier last train connections</td>
+            </tr>
+            <tr>
+              <td>Saturdays and Sundays</td>
+              <td>Late start until 09:00</td>
+              <td>
+                <div class="badge">Shuttles 05:00 to 09:00</div>
+                <div class="small">Shuttle 36: HarbourFront ↔ Bishan, every 7 to 10 minutes<br/>Shuttle 37: Bishan ↔ Promenade, every 3 to 5 minutes</div>
+              </td>
+            </tr>
+            <tr>
+              <td>Exceptions</td>
+              <td>3–5 Oct, 28–30 Nov, 5–7 Dec</td>
+              <td>Normal hours on these weekends</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2 style="margin:0 0 10px 0; font-size: 20px;">All weekends in period</h2>
+      <div id="weeks" class="grid"></div>
+      <div class="small" style="margin-top:10px;">Data source: public announcements. Please confirm before travel. Last updated 13 Aug 2025.</div>
+    </section>
+
+    <footer>
+      Built for Singapore commuters. No tracking.
+    </footer>
+  </main>
+
+  <script>
+    // Configuration
+    const PERIOD_START = new Date("2025-09-05T00:00:00+08:00");
+    const PERIOD_END   = new Date("2025-12-28T23:59:59+08:00");
+    const EXCEPTIONS = [
+      [new Date("2025-10-03T00:00:00+08:00"), new Date("2025-10-05T23:59:59+08:00")],
+      [new Date("2025-11-28T00:00:00+08:00"), new Date("2025-11-30T23:59:59+08:00")],
+      [new Date("2025-12-05T00:00:00+08:00"), new Date("2025-12-07T23:59:59+08:00")],
+    ];
+
+    const dtInput = document.getElementById('dt');
+    const statusEl = document.getElementById('status');
+    const reasonEl = document.getElementById('reason');
+    const weeksEl = document.getElementById('weeks');
+
+    // Set default to current local datetime (rounded to minutes)
+    (function initInputNow(){
+      const now = new Date();
+      const iso = new Date(now - now.getTimezoneOffset()*60000).toISOString().slice(0,16); // local iso without seconds
+      dtInput.value = iso;
+    })();
+
+    function within(d, s, e){ return d.getTime() >= s.getTime() && d.getTime() <= e.getTime(); }
+    function inAny(d, ranges){ return ranges.some(([s,e]) => within(d,s,e)); }
+
+    function assess(date){
+      if (!within(date, PERIOD_START, PERIOD_END)) return { affected:false, reason:"Outside adjustment period" };
+      if (inAny(date, EXCEPTIONS)) return { affected:false, reason:"Exception weekend" };
+
+      const dow = date.getDay(); // 0 Sun..6 Sat
+      const h = date.getHours();
+
+      // Early end: Fri, Sat from 23:00
+      if ((dow === 5 || dow === 6) && h >= 23) return { affected:true, mode:"night", detail:"Early end from 23:00 on Fri and Sat" };
+      // Late start: Sat, Sun until 09:00
+      if ((dow === 6 || dow === 0) && h < 9) return { affected:true, mode:"morning", detail:"Late start until 09:00 on Sat and Sun" };
+
+      return { affected:false, reason:"Normal hours" };
+    }
+
+    function renderStatus(date){
+      if (isNaN(date)) { statusEl.className = 'status ok'; statusEl.innerHTML = '<h3>Normal operating hours</h3><div class="small">Invalid date time</div>'; return; }
+      const s = assess(date);
+      if (s.affected){
+        statusEl.className = 'status warn';
+        statusEl.innerHTML = '<h3>Adjusted service applies</h3>' +
+          '<div class="small">' + s.detail + '</div>' +
+          (s.mode === 'morning' ? (
+            '<div class="badge" style="margin-top:8px; display:block;">Shuttle buses 05:00 to 09:00</div>' +
+            '<div class="small">Shuttle 36: HarbourFront ↔ Bishan, every 7 to 10 minutes<br/>Shuttle 37: Bishan ↔ Promenade, every 3 to 5 minutes<br/>Plan for up to 30 minutes additional travel time.</div>'
+          ) : '');
+      } else {
+        statusEl.className = 'status ok';
+        statusEl.innerHTML = '<h3>Normal operating hours</h3><div class="small">' + s.reason + '</div>';
+      }
+    }
+
+    function listWeekends(){
+      weeksEl.innerHTML = '';
+      const d = new Date(PERIOD_START);
+      // move to first Friday in range
+      while (d.getDay() !== 5) d.setDate(d.getDate() + 1);
+      while (d <= PERIOD_END){
+        const fri = new Date(d);
+        const sat = new Date(d); sat.setDate(sat.getDate()+1);
+        const sun = new Date(d); sun.setDate(sun.getDate()+2);
+        const isException = inAny(fri, EXCEPTIONS) || inAny(sat, EXCEPTIONS) || inAny(sun, EXCEPTIONS);
+        const cls = isException ? 'w-ok' : 'w-warn';
+        const tag = isException ? 'Normal hours (exception)' : 'Adjusted service applies';
+        const box = document.createElement('div');
+        box.className = `week ${cls}`;
+        box.innerHTML = `<div><strong>${isoDate(fri)} to ${isoDate(sun)}</strong><div class="small">${tag}</div></div><div class="small">${isException ? 'Normal' : 'Adjusted'}</div>`;
+        weeksEl.appendChild(box);
+        d.setDate(d.getDate()+7);
+      }
+    }
+
+    function isoDate(d){ return d.toISOString().slice(0,10); }
+
+    // Events
+    dtInput.addEventListener('input', () => {
+      const val = dtInput.value;
+      const date = val ? new Date(val) : new Date(NaN);
+      renderStatus(date);
+    });
+
+    // Initial render
+    renderStatus(new Date(dtInput.value));
+    listWeekends();
+  </script>
+</body>
+</html>
